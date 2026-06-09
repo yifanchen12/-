@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+dist/
+build/
+data/
+output/
+*.sqlite3
+*.db
+*.xlsx
+*.csv
+*.log
+.env
+
