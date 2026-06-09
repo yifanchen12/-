@@ -89,7 +89,7 @@ else {
 }
 
 $ManifestPath = Join-Path $ArtifactDir "README_ARTIFACTS.md"
-@"
+$Manifest = @"
 # Full Crawl Artifacts
 
 Generated at: $Stamp
@@ -110,7 +110,8 @@ Get-ChildItem 'bupt_library_full_crawl_$Stamp.zip.part*' | Sort-Object Name | Fo
     try { `$in.CopyTo(`$out) } finally { `$in.Dispose(); `$out.Dispose() }
 }
 ```
-"@ | Set-Content -Path $ManifestPath -Encoding UTF8
+"@
+$Manifest | Set-Content -Path $ManifestPath -Encoding UTF8
 
 $RepoUrl = git -C $ProjectRoot remote get-url origin
 Write-Log "Cloning $RepoUrl to temporary publish checkout."
@@ -134,4 +135,3 @@ if ($CleanupLocalData) {
 
 Remove-Item -LiteralPath $TempRoot -Recurse -Force -ErrorAction SilentlyContinue
 Write-Log "Post-crawl publish and cleanup finished."
-
