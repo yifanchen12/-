@@ -89,29 +89,28 @@ else {
 }
 
 $ManifestPath = Join-Path $ArtifactDir "README_ARTIFACTS.md"
-$Manifest = @"
-# Full Crawl Artifacts
-
-Generated at: $Stamp
-
-Files included in the archive:
-
-- `bupt_library.sqlite3`
-- `bupt_library_holdings.xlsx`
-
-If the archive is split into `.partNNN` files, reconstruct it in PowerShell:
-
-```powershell
-`$output = 'bupt_library_full_crawl_$Stamp.zip'
-Remove-Item `$output -ErrorAction SilentlyContinue
-Get-ChildItem 'bupt_library_full_crawl_$Stamp.zip.part*' | Sort-Object Name | ForEach-Object {
-    `$in = [System.IO.File]::OpenRead(`$_.FullName)
-    `$out = [System.IO.File]::Open(`$output, [System.IO.FileMode]::Append)
-    try { `$in.CopyTo(`$out) } finally { `$in.Dispose(); `$out.Dispose() }
-}
-```
-"@
-$Manifest | Set-Content -Path $ManifestPath -Encoding UTF8
+@(
+    "# Full Crawl Artifacts"
+    ""
+    "Generated at: $Stamp"
+    ""
+    "Files included in the archive:"
+    ""
+    "- ``bupt_library.sqlite3``"
+    "- ``bupt_library_holdings.xlsx``"
+    ""
+    "If the archive is split into ``.partNNN`` files, reconstruct it in PowerShell:"
+    ""
+    "``````powershell"
+    "`$output = 'bupt_library_full_crawl_$Stamp.zip'"
+    "Remove-Item `$output -ErrorAction SilentlyContinue"
+    "Get-ChildItem 'bupt_library_full_crawl_$Stamp.zip.part*' | Sort-Object Name | ForEach-Object {"
+    "    `$in = [System.IO.File]::OpenRead(`$_.FullName)"
+    "    `$out = [System.IO.File]::Open(`$output, [System.IO.FileMode]::Append)"
+    "    try { `$in.CopyTo(`$out) } finally { `$in.Dispose(); `$out.Dispose() }"
+    "}"
+    "``````"
+) | Set-Content -Path $ManifestPath -Encoding UTF8
 
 $RepoUrl = git -C $ProjectRoot remote get-url origin
 Write-Log "Cloning $RepoUrl to temporary publish checkout."
