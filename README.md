@@ -52,6 +52,41 @@ python -m bupt_library_crawler.cli --codes A11 B821 TP311 --full --resume --dela
 python -m bupt_library_crawler.cli --export-only
 ```
 
+### Windows EXE 自动续跑模式
+
+构建 exe：
+
+```powershell
+.\scripts\build_exe.ps1
+```
+
+生成文件：
+
+```text
+dist\ShuXiangBaiDuCrawler.exe
+```
+
+之后双击或在终端运行该 exe，会自动执行：
+
+- 全量爬取。
+- 从 `data\bupt_library.sqlite3` 断点续跑。
+- 当本地 SQLite 达到约 90MB 时，导出当前批次 Excel。
+- 将 SQLite + Excel 打包上传到 GitHub 仓库 `artifacts/` 目录。
+- 上传成功后清空本地书目和馆藏数据，只保留分类、断点和批次号。
+- 下次再次打开 exe，会从上次记录继续爬取。
+
+终端运行方式：
+
+```powershell
+.\dist\ShuXiangBaiDuCrawler.exe
+```
+
+可追加参数覆盖默认值，例如降低上传阈值测试：
+
+```powershell
+.\dist\ShuXiangBaiDuCrawler.exe --batch-upload-mb 10 --delay 2.0
+```
+
 ### 发布到 GitHub
 
 本机需要先登录 GitHub CLI：
@@ -124,6 +159,35 @@ Export from an existing SQLite database only:
 python -m bupt_library_crawler.cli --export-only
 ```
 
+### Windows EXE Auto-Resume Mode
+
+Build the exe:
+
+```powershell
+.\scripts\build_exe.ps1
+```
+
+Output:
+
+```text
+dist\ShuXiangBaiDuCrawler.exe
+```
+
+When launched, the exe will:
+
+- Run a full crawl.
+- Resume from `data\bupt_library.sqlite3`.
+- Export the current batch when the local SQLite database reaches about 90MB.
+- Upload the SQLite + Excel archive to the GitHub repository under `artifacts/`.
+- Clear local book and holding records after a successful upload, while preserving crawl checkpoints.
+- Continue from the saved checkpoint the next time the exe is opened.
+
+Run from a terminal:
+
+```powershell
+.\dist\ShuXiangBaiDuCrawler.exe
+```
+
 ### Publish to GitHub
 
 Sign in to GitHub CLI first:
@@ -143,4 +207,3 @@ Then run:
 - Avoid high-concurrency crawling. This project is intentionally serial and rate-limited.
 - Excel sheets have row limits. For very large crawls, keep the SQLite database as the canonical dataset or export in batches.
 - Do not crawl private, login-only, or access-controlled personal data.
-

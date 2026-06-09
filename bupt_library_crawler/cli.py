@@ -6,6 +6,7 @@ from pathlib import Path
 
 from tqdm import tqdm
 
+from .artifacts import publish_batch
 from .categories import Category, extract_categories, select_categories, top_code_for
 from .client import OpacClient
 from .exporter import export_excel
@@ -31,6 +32,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--full", action="store_true", help="Crawl all pages for selected categories.")
     parser.add_argument("--resume", action="store_true", help="Resume from the SQLite crawl_state table.")
     parser.add_argument("--export-only", action="store_true", help="Skip crawling and export the existing SQLite database.")
+    parser.add_argument("--batch-upload-mb", type=int, default=0, help="Upload and clear local records whenever SQLite reaches this size. 0 disables batching.")
+    parser.add_argument("--repo-root", type=Path, default=Path("."), help="Git repository root used for artifact uploads.")
+    parser.add_argument("--cleanup-after-upload", action="store_true", help="Clear local book/holding records after each successful batch upload.")
     parser.add_argument("--log-level", default="INFO")
     return parser
 
@@ -113,6 +117,15 @@ def crawl(args: argparse.Namespace) -> None:
                 holdings = parse_holdings(detail_html, rec_ctrl_id, category.code, category.top_code, args.base_url) if detail_html else []
                 store.save_record(book, holdings)
                 total_books += 1
+                if args.batch_upload_mb and args.db.exists() and args.db.stat().st_size >= args.batch_upload_mb * 1024 * 1024:
+                    logging.info("Batch threshold reached; exporting, uploading, and cleaning local records.")
+                    publish_batch(
+                        db_path=args.db,
+                        output_path=args.output,
+                        repo_root=args.repo_root.resolve(),
+                        part_size_mb=args.batch_upload_mb,
+                        cleanup_after_upload=args.cleanup_after_upload,
+                    )
                 if args.max_books and total_books >= args.max_books:
                     store.update_state(category.code, page_no, total_page, total_records, done=False)
                     export_excel(args.db, args.output)
@@ -127,7 +140,16 @@ def crawl(args: argparse.Namespace) -> None:
                 break
             page_no += 1
 
-    export_excel(args.db, args.output)
+    if args.batch_upload_mb:
+        publish_batch(
+            db_path=args.db,
+            output_path=args.output,
+            repo_root=args.repo_root.resolve(),
+            part_size_mb=args.batch_upload_mb,
+            cleanup_after_upload=args.cleanup_after_upload,
+        )
+    else:
+        export_excel(args.db, args.output)
     store.close()
 
 

@@ -65,6 +65,11 @@ CREATE TABLE IF NOT EXISTS crawl_state (
   done INTEGER NOT NULL DEFAULT 0,
   updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS metadata (
+  key TEXT PRIMARY KEY,
+  value TEXT
+);
 """
 
 
@@ -87,6 +92,32 @@ class Store:
         }
         if "register_no" not in columns:
             self.conn.execute("ALTER TABLE holdings ADD COLUMN register_no TEXT")
+
+    def count_books(self) -> int:
+        row = self.conn.execute("SELECT COUNT(*) AS count FROM books").fetchone()
+        return int(row["count"])
+
+    def next_batch_number(self) -> int:
+        row = self.conn.execute("SELECT value FROM metadata WHERE key = 'batch_number'").fetchone()
+        current = int(row["value"]) if row else 0
+        next_value = current + 1
+        self.conn.execute(
+            """
+            INSERT INTO metadata(key, value)
+            VALUES('batch_number', ?)
+            ON CONFLICT(key) DO UPDATE SET value = excluded.value
+            """,
+            (str(next_value),),
+        )
+        self.conn.commit()
+        return next_value
+
+    def clear_records(self) -> None:
+        self.conn.execute("DELETE FROM holdings")
+        self.conn.execute("DELETE FROM books")
+        self.conn.commit()
+        self.conn.execute("VACUUM")
+        self.conn.commit()
 
     def upsert_categories(self, categories: Iterable[Any]) -> None:
         self.conn.executemany(
