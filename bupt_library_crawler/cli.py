@@ -92,6 +92,10 @@ def crawl(args: argparse.Namespace) -> None:
             total_page = int(data.get("totalPage") or 0)
             total_records = int(data.get("total") or 0)
             records = data.get("data") or []
+            if total_records == 0 or (total_page == 0 and not records):
+                logging.info("Category %s has no records; marking it done.", category.code)
+                store.update_state(category.code, page_no, total_page, total_records, done=True)
+                break
 
             for item in tqdm(records, desc=f"{category.code} p{page_no}", leave=False):
                 rec_ctrl_id = item.get("recCtrlId")
