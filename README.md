@@ -70,7 +70,7 @@ dist\ShuXiangBaiDuCrawler.exe
 
 - 全量爬取。
 - 从 `data\bupt_library.sqlite3` 断点续跑。
-- 当本地 SQLite 达到约 90MB 时，导出当前批次 Excel。
+- 当本地 SQLite 达到约 30MB 时，导出当前批次 Excel。
 - 将 SQLite + Excel 打包上传到 GitHub 仓库 `artifacts/` 目录。
 - 上传成功后清空本地书目和馆藏数据，只保留分类、断点和批次号。
 - 下次再次打开 exe，会从上次记录继续爬取。
@@ -177,7 +177,7 @@ When launched, the exe will:
 
 - Run a full crawl.
 - Resume from `data\bupt_library.sqlite3`.
-- Export the current batch when the local SQLite database reaches about 90MB.
+- Export the current batch when the local SQLite database reaches about 30MB.
 - Upload the SQLite + Excel archive to the GitHub repository under `artifacts/`.
 - Clear local book and holding records after a successful upload, while preserving crawl checkpoints.
 - Continue from the saved checkpoint the next time the exe is opened.

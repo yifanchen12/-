@@ -1,7 +1,7 @@
 param(
     [int]$CrawlPid,
     [string]$Branch = "main",
-    [int]$PartSizeMB = 90,
+    [int]$PartSizeMB = 30,
     [switch]$CleanupLocalData
 )
 

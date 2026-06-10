@@ -19,7 +19,7 @@ def main() -> None:
         "--output",
         str(root / "output" / "bupt_library_holdings.xlsx"),
         "--batch-upload-mb",
-        "90",
+        "30",
         "--repo-root",
         str(root),
         "--cleanup-after-upload",

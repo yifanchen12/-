@@ -96,7 +96,7 @@ def publish_batch(
     db_path: Path,
     output_path: Path,
     repo_root: Path,
-    part_size_mb: int = 90,
+    part_size_mb: int = 30,
     cleanup_after_upload: bool = True,
 ) -> bool:
     """Export, archive, push a batch to GitHub, then optionally clear local records."""
@@ -155,4 +155,3 @@ def publish_batch(
             output_path.unlink()
 
     return True
-
