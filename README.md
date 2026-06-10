@@ -207,3 +207,7 @@ Then run:
 - Avoid high-concurrency crawling. This project is intentionally serial and rate-limited.
 - Excel sheets have row limits. For very large crawls, keep the SQLite database as the canonical dataset or export in batches.
 - Do not crawl private, login-only, or access-controlled personal data.
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for the copyright notice.
